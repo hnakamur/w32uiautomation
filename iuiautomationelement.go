@@ -1,7 +1,6 @@
 package w32uiautomation
 
 import (
-	"fmt"
 	"syscall"
 	"unsafe"
 
@@ -98,6 +97,8 @@ type IUIAutomationElementVtbl struct {
 	GetClickablePoint               uintptr
 }
 
+var IID_IUIAutomationElement = &ole.GUID{0xd22108aa, 0x8ac5, 0x49a5, [8]byte{0x83, 0x7b, 0x37, 0xbb, 0xb3, 0xd7, 0x59, 0x1e}}
+
 func (elem *IUIAutomationElement) VTable() *IUIAutomationElementVtbl {
 	return (*IUIAutomationElementVtbl)(unsafe.Pointer(elem.RawVTable))
 }
@@ -123,7 +124,7 @@ func (elem *IUIAutomationElement) Get_CurrentName() (string, error) {
 }
 
 func findFirst(elem *IUIAutomationElement, scope TreeScope, condition *IUIAutomationCondition) (found *IUIAutomationElement, err error) {
-	hr, r2, e := syscall.Syscall6(
+	hr, _, _ := syscall.Syscall6(
 		elem.VTable().FindFirst,
 		4,
 		uintptr(unsafe.Pointer(elem)),
@@ -132,7 +133,6 @@ func findFirst(elem *IUIAutomationElement, scope TreeScope, condition *IUIAutoma
 		uintptr(unsafe.Pointer(&found)),
 		0,
 		0)
-	fmt.Printf("firstFind. hr=%x, r2=%x, e=%v\n", hr, r2, e)
 	if hr != 0 {
 		err = ole.NewError(hr)
 	}

@@ -119,6 +119,10 @@ func (auto *IUIAutomation) CreateTrueCondition() (newCondition *IUIAutomationCon
 	return createTrueCondition(auto)
 }
 
+func (auto *IUIAutomation) CreateAndCondition(condition1, condition2 *IUIAutomationCondition) (newCondition *IUIAutomationCondition, err error) {
+	return createAndCondition(auto, condition1, condition2)
+}
+
 func (auto *IUIAutomation) CreatePropertyCondition(propertyId PROPERTYID, value ole.VARIANT) (newCondition *IUIAutomationCondition, err error) {
 	return createPropertyCondition(auto, propertyId, value)
 }
@@ -178,18 +182,21 @@ func createTrueCondition(auto *IUIAutomation) (newCondition *IUIAutomationCondit
 	return
 }
 
-// func createPropertyCondition(auto *IUIAutomation, propertyId PROPERTYID, value ole.VARIANT) (newCondition *IUIAutomationCondition, err error) {
-// 	hr, _, _ := syscall.Syscall(
-// 		auto.VTable().GetRootElement,
-// 		3,
-// 		uintptr(propertyId),
-// 		uintptr(unsafe.Pointer(value)),
-// 		uintptr(unsafe.Pointer(&newCondition)))
-// 	if hr != 0 {
-// 		err = ole.NewError(hr)
-// 	}
-// 	return
-// }
+func createAndCondition(auto *IUIAutomation, condition1, condition2 *IUIAutomationCondition) (newCondition *IUIAutomationCondition, err error) {
+	hr, _, _ := syscall.Syscall6(
+		auto.VTable().CreateAndCondition,
+		4,
+		uintptr(unsafe.Pointer(auto)),
+		uintptr(unsafe.Pointer(condition1)),
+		uintptr(unsafe.Pointer(condition2)),
+		uintptr(unsafe.Pointer(&newCondition)),
+		0,
+		0)
+	if hr != 0 {
+		err = ole.NewError(hr)
+	}
+	return
+}
 
 //         HRESULT ( STDMETHODCALLTYPE *CompareElements )(
 //             __RPC__in IUIAutomation * This,

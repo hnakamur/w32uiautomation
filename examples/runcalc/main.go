@@ -102,8 +102,40 @@ func runCalc() error {
 }
 
 func pushButton(auto *w32uiautomation.IUIAutomation, calc *w32uiautomation.IUIAutomationElement, automationId string) error {
-	button, err := w32uiautomation.WaitFindFirstWithBreadthFirstSearch(auto, calc,
+	condition, err := auto.CreatePropertyCondition(
+		w32uiautomation.UIA_AutomationIdPropertyId,
+		w32uiautomation.NewVariantString(automationId))
+	fmt.Printf("pushButton condition=%v\n", condition)
+	if err != nil {
+		return err
+	}
+
+	button, err := w32uiautomation.WaitFindFirst(calc,
+		w32uiautomation.TreeScope_Subtree,
+		condition)
+	fmt.Printf("pushButton button#1=%v\n", button)
+	if err != nil {
+		return err
+	}
+	// NOTE: I don't know why but I got an error if I call Invoke() with
+	// button returned by WaitFindFirst above.
+	//
+	// Invoke start. element=&{{0x7183c068}}
+	// Invoke. unknown=<nil>
+	// panic: runtime error: invalid memory address or nil pointer dereference
+	// [signal 0xc0000005 code=0x0 addr=0x0 pc=0x4539b0]
+	//err = w32uiautomation.Invoke(button)
+	//if err != nil {
+	//	return err
+	//}
+
+	button, err = w32uiautomation.WaitFindFirstWithBreadthFirstSearch(
+		auto, calc,
 		w32uiautomation.NewElemMatcherFuncWithAutomationId(automationId))
+	// button#1 and button#2 prints the same output
+	// pushButton button#1=&{{0x7183c068}}
+	// pushButton button#2=&{{0x7183c068}}
+	fmt.Printf("pushButton button#2=%v\n", button)
 	if err != nil {
 		return err
 	}
