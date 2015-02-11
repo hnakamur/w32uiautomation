@@ -2,61 +2,6 @@ package w32uiautomation
 
 import "time"
 
-// NOTE: APIs in this file are deprecated.
-
-func FindToplevelElementWithName(auto *IUIAutomation, name string) (*IUIAutomationElement, error) {
-	root, err := auto.GetRootElement()
-	if err != nil {
-		return nil, err
-	}
-	defer root.Release()
-
-	condition, err := auto.CreateTrueCondition()
-	if err != nil {
-		return nil, err
-	}
-	defer condition.Release()
-
-	walker, err := auto.CreateTreeWalker(condition)
-	if err != nil {
-		return nil, err
-	}
-	defer walker.Release()
-
-	element, err := walker.GetFirstChildElement(root)
-	if err != nil {
-		return nil, err
-	}
-	for element != nil {
-		elementName, err := element.Get_CurrentName()
-		if err != nil {
-			return nil, err
-		}
-		if elementName == name {
-			return element, nil
-		}
-
-		element, err = walker.GetNextSiblingElement(element)
-		if err != nil {
-			return nil, err
-		}
-	}
-	return nil, nil
-}
-
-func WaitFindToplevelElementWithName(auto *IUIAutomation, name string) (*IUIAutomationElement, error) {
-	for {
-		found, err := FindToplevelElementWithName(auto, name)
-		if err != nil {
-			return nil, err
-		}
-		if found != nil {
-			return found, err
-		}
-		time.Sleep(100 * time.Millisecond)
-	}
-}
-
 func WaitFindFirstWithBreadthFirstSearch(auto *IUIAutomation, start *IUIAutomationElement, matcher ElemMatcherFunc) (*IUIAutomationElement, error) {
 	for {
 		found, err := FindFirstWithBreadthFirstSearch(auto, start, matcher)
