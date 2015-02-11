@@ -110,13 +110,13 @@ func pushButton(auto *w32uiautomation.IUIAutomation, calc *w32uiautomation.IUIAu
 		return err
 	}
 
-	button, err := w32uiautomation.WaitFindFirst(calc,
-		w32uiautomation.TreeScope_Subtree,
-		condition)
-	fmt.Printf("pushButton button#1=%v\n", button)
-	if err != nil {
-		return err
-	}
+	//button, err := w32uiautomation.WaitFindFirst(calc,
+	//	w32uiautomation.TreeScope_Subtree,
+	//	condition)
+	//fmt.Printf("pushButton button#1=%v\n", button)
+	//if err != nil {
+	//	return err
+	//}
 	// NOTE: I don't know why but I got an error if I call Invoke() with
 	// button returned by WaitFindFirst above.
 	//
@@ -129,7 +129,7 @@ func pushButton(auto *w32uiautomation.IUIAutomation, calc *w32uiautomation.IUIAu
 	//	return err
 	//}
 
-	button, err = w32uiautomation.WaitFindFirstWithBreadthFirstSearch(
+	button, err := w32uiautomation.WaitFindFirstWithBreadthFirstSearch(
 		auto, calc,
 		w32uiautomation.NewElemMatcherFuncWithAutomationId(automationId))
 	// button#1 and button#2 prints the same output
