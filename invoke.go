@@ -29,3 +29,17 @@ func Invoke(element *IUIAutomationElement) error {
 	}
 	return nil
 }
+
+func WaitFindAndInvoke(auto *IUIAutomation, element *IUIAutomationElement, matcher ElemMatcherFunc) error {
+	element, err := WaitFindFirstWithBreadthFirstSearch(
+		auto, element, matcher)
+	if err != nil {
+		return err
+	}
+
+	err = Invoke(element)
+	if err != nil {
+		return err
+	}
+	return nil
+}
