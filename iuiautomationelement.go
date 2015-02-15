@@ -7,6 +7,13 @@ import (
 	"github.com/mattn/go-ole"
 )
 
+type RECT struct {
+	Left   uint32
+	Top    uint32
+	Right  uint32
+	Bottom uint32
+}
+
 type IUIAutomationElement struct {
 	ole.IUnknown
 }
@@ -123,6 +130,14 @@ func (elem *IUIAutomationElement) Get_CurrentName() (string, error) {
 	return get_CurrentName(elem)
 }
 
+func (elem *IUIAutomationElement) Get_CurrentNativeWindowHandle() (syscall.Handle, error) {
+	return get_CurrentNativeWindowHandle(elem)
+}
+
+func (elem *IUIAutomationElement) Get_CurrentBoundingRectangle() (RECT, error) {
+	return get_CurrentBoundingRectangle(elem)
+}
+
 func findFirst(elem *IUIAutomationElement, scope TreeScope, condition *IUIAutomationCondition) (found *IUIAutomationElement, err error) {
 	hr, _, _ := syscall.Syscall6(
 		elem.VTable().FindFirst,
@@ -198,6 +213,34 @@ func get_CurrentName(elem *IUIAutomationElement) (name string, err error) {
 		return
 	}
 	name = ole.BstrToString(bstrName)
+	return
+}
+
+func get_CurrentNativeWindowHandle(elem *IUIAutomationElement) (handle syscall.Handle, err error) {
+	hr, _, _ := syscall.Syscall(
+		elem.VTable().Get_CurrentNativeWindowHandle,
+		2,
+		uintptr(unsafe.Pointer(elem)),
+		uintptr(unsafe.Pointer(&handle)),
+		0)
+	if hr != 0 {
+		err = ole.NewError(hr)
+		return
+	}
+	return
+}
+
+func get_CurrentBoundingRectangle(elem *IUIAutomationElement) (rect RECT, err error) {
+	hr, _, _ := syscall.Syscall(
+		elem.VTable().Get_CurrentBoundingRectangle,
+		2,
+		uintptr(unsafe.Pointer(elem)),
+		uintptr(unsafe.Pointer(&rect)),
+		0)
+	if hr != 0 {
+		err = ole.NewError(hr)
+		return
+	}
 	return
 }
 
