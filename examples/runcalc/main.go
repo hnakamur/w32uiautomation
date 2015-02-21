@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os/exec"
 
 	"github.com/hnakamur/w32uiautomation"
@@ -35,14 +34,11 @@ func runCalc() error {
 	defer root.Release()
 
 	condVal := w32uiautomation.NewVariantString(calculatorName)
-	fmt.Printf("condVal=%v, %s\n", condVal, condVal.ToString())
 	condition, err := auto.CreatePropertyCondition(w32uiautomation.UIA_NamePropertyId, condVal)
-	fmt.Printf("condition=%v, err=%v\n", condition, err)
 	if err != nil {
 		return err
 	}
 	found, err := w32uiautomation.WaitFindFirst(root, w32uiautomation.TreeScope_Children, condition)
-	fmt.Printf("found=%v, err=%v\n", found, err)
 	if err != nil {
 		return err
 	}
@@ -52,13 +48,13 @@ func runCalc() error {
 		return err
 	}
 	// I don't know why, but we get an empty string for foundName
-	fmt.Printf("foundName=%v\n", foundName)
+	//fmt.Printf("foundName=%v\n", foundName)
 
-	foundAutomationId, err := found.Get_CurrentAutomationId()
-	if err != nil {
-		return err
-	}
-	fmt.Printf("foundAutomationId=%v\n", foundAutomationId)
+	//foundAutomationId, err := found.Get_CurrentAutomationId()
+	//if err != nil {
+	//	return err
+	//}
+	//fmt.Printf("foundAutomationId=%v\n", foundAutomationId)
 
 	calc := found
 	//calc, err := w32uiautomation.FindFirstWithBreadthFirstSearch(auto, root,
@@ -105,7 +101,6 @@ func pushButton(auto *w32uiautomation.IUIAutomation, calc *w32uiautomation.IUIAu
 	condition, err := auto.CreatePropertyCondition(
 		w32uiautomation.UIA_AutomationIdPropertyId,
 		w32uiautomation.NewVariantString(automationId))
-	fmt.Printf("pushButton condition=%v\n", condition)
 	if err != nil {
 		return err
 	}
@@ -132,10 +127,6 @@ func pushButton(auto *w32uiautomation.IUIAutomation, calc *w32uiautomation.IUIAu
 	button, err := w32uiautomation.WaitFindFirstWithBreadthFirstSearch(
 		auto, calc,
 		w32uiautomation.NewElemMatcherFuncWithAutomationId(automationId))
-	// button#1 and button#2 prints the same output
-	// pushButton button#1=&{{0x7183c068}}
-	// pushButton button#2=&{{0x7183c068}}
-	fmt.Printf("pushButton button#2=%v\n", button)
 	if err != nil {
 		return err
 	}

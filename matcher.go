@@ -1,8 +1,6 @@
 package w32uiautomation
 
-import "fmt"
-
-// NOTE: APIs in this file are deprecated.
+// NOTE: APIs in this file may be deleted in the future.
 
 type ElemMatcherFunc func(element *IUIAutomationElement, walker *IUIAutomationTreeWalker) (matched bool, err error)
 
@@ -12,7 +10,6 @@ func NewElemMatcherFuncWithName(name string) ElemMatcherFunc {
 		if err != nil {
 			return
 		}
-		fmt.Printf("name matcher. n=%s\n", n)
 		if n == name {
 			matched = true
 		}
@@ -34,14 +31,11 @@ func NewElemMatcherFuncWithAutomationId(automationId string) ElemMatcherFunc {
 }
 
 func NewElemMatcherFuncWithChildName(name string) ElemMatcherFunc {
-	fmt.Printf("NewElemMatcherFuncWithChildName. name=%s\n", name)
 	return func(element *IUIAutomationElement, walker *IUIAutomationTreeWalker) (matched bool, err error) {
-		fmt.Printf("Child matcher. element=%v\n", element)
 		child, err := walker.GetFirstChildElement(element)
 		if err != nil {
 			return
 		}
-		fmt.Printf("Child matcher. first child=%v\n", child)
 
 		for child != nil {
 			var n string
@@ -49,7 +43,6 @@ func NewElemMatcherFuncWithChildName(name string) ElemMatcherFunc {
 			if err != nil {
 				break
 			}
-			fmt.Printf("Child matcher. child name=%s\n", n)
 
 			if n == name {
 				matched = true
@@ -60,7 +53,6 @@ func NewElemMatcherFuncWithChildName(name string) ElemMatcherFunc {
 			if err != nil {
 				break
 			}
-			fmt.Printf("Child matcher. next sibling=%v\n", child)
 		}
 		return
 	}
