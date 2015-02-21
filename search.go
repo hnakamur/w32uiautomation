@@ -16,13 +16,7 @@ func WaitFindFirstWithBreadthFirstSearch(auto *IUIAutomation, start *IUIAutomati
 }
 
 func FindFirstWithBreadthFirstSearch(auto *IUIAutomation, start *IUIAutomationElement, matcher ElemMatcherFunc) (*IUIAutomationElement, error) {
-	condition, err := auto.CreateTrueCondition()
-	if err != nil {
-		return nil, err
-	}
-	defer condition.Release()
-
-	walker, err := auto.CreateTreeWalker(condition)
+	walker, err := NewTreeWalker(auto)
 	if err != nil {
 		return nil, err
 	}
