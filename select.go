@@ -22,17 +22,3 @@ func Select(element *IUIAutomationElement) error {
 	}
 	return nil
 }
-
-func WaitFindAndSelect(auto *IUIAutomation, element *IUIAutomationElement, matcher ElemMatcherFunc) error {
-	element, err := WaitFindFirstWithBreadthFirstSearch(
-		auto, element, matcher)
-	if err != nil {
-		return err
-	}
-
-	err = Select(element)
-	if err != nil {
-		return err
-	}
-	return nil
-}
