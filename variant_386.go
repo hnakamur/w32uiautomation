@@ -16,7 +16,7 @@ func VariantToUintptrArray(v ole.VARIANT) []uintptr {
 	return []uintptr{
 		uintptr(v.VT), // uintptr(v.wReserved1)<<16 | uintptr(v.VT),
 		uintptr(0),    // uintptr(v.wReserved3)<<16 | uintptr(v.wReserved2),
-		uintptr(v.Val >> 32),
 		uintptr(v.Val & 0xffffffff),
+		uintptr(v.Val >> 32),
 	}
 }

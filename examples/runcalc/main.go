@@ -35,43 +35,20 @@ func runCalc() error {
 	defer root.Release()
 
 	condVal := w32uiautomation.NewVariantString(calculatorName)
-	fmt.Printf("condVal=%v, %s\n", condVal, condVal.ToString())
 	condition, err := auto.CreatePropertyCondition(w32uiautomation.UIA_NamePropertyId, condVal)
-	fmt.Printf("condition=%v, err=%v\n", condition, err)
 	if err != nil {
 		return err
 	}
-	found, err := w32uiautomation.WaitFindFirst(root, w32uiautomation.TreeScope_Children, condition)
-	fmt.Printf("found=%v, err=%v\n", found, err)
+	calc, err := w32uiautomation.WaitFindFirst(root, w32uiautomation.TreeScope_Children, condition)
 	if err != nil {
 		return err
 	}
 
-	foundName, err := found.Get_CurrentName()
+	calcName, err := calc.Get_CurrentName()
 	if err != nil {
 		return err
 	}
-	// I don't know why, but we get an empty string for foundName
-	fmt.Printf("foundName=%v\n", foundName)
-
-	foundAutomationId, err := found.Get_CurrentAutomationId()
-	if err != nil {
-		return err
-	}
-	fmt.Printf("foundAutomationId=%v\n", foundAutomationId)
-
-	calc := found
-	//calc, err := w32uiautomation.FindFirstWithBreadthFirstSearch(auto, root,
-	//	w32uiautomation.NewElemMatcherFuncWithName(calculatorName))
-	//if err != nil {
-	//	return err
-	//}
-	//calcName, err := calc.Get_CurrentName()
-	//if err != nil {
-	//	return err
-	//}
-	//// NOTE: Here we can get the actual name, "Calculator"
-	//fmt.Printf("calc=%v, calcName=%v\n", calc, calcName)
+	fmt.Printf("calcName=%v\n", calcName)
 
 	pushButton(auto, calc, clearButtonAutomationId)
 	if err != nil {
@@ -105,46 +82,17 @@ func pushButton(auto *w32uiautomation.IUIAutomation, calc *w32uiautomation.IUIAu
 	condition, err := auto.CreatePropertyCondition(
 		w32uiautomation.UIA_AutomationIdPropertyId,
 		w32uiautomation.NewVariantString(automationId))
-	fmt.Printf("pushButton condition=%v\n", condition)
 	if err != nil {
 		return err
 	}
 
-	//button, err := w32uiautomation.WaitFindFirst(calc,
-	//	w32uiautomation.TreeScope_Subtree,
-	//	condition)
-	//fmt.Printf("pushButton button#1=%v\n", button)
-	//if err != nil {
-	//	return err
-	//}
-	// NOTE: I don't know why but I got an error if I call Invoke() with
-	// button returned by WaitFindFirst above.
-	//
-	// Invoke start. element=&{{0x7183c068}}
-	// Invoke. unknown=<nil>
-	// panic: runtime error: invalid memory address or nil pointer dereference
-	// [signal 0xc0000005 code=0x0 addr=0x0 pc=0x4539b0]
-	//err = w32uiautomation.Invoke(button)
-	//if err != nil {
-	//	return err
-	//}
-
-	button, err := w32uiautomation.WaitFindFirstWithBreadthFirstSearch(
-		auto, calc,
-		w32uiautomation.NewElemMatcherFuncWithAutomationId(automationId))
-	// button#1 and button#2 prints the same output
-	// pushButton button#1=&{{0x7183c068}}
-	// pushButton button#2=&{{0x7183c068}}
-	fmt.Printf("pushButton button#2=%v\n", button)
+	button, err := w32uiautomation.WaitFindFirst(calc,
+		w32uiautomation.TreeScope_Subtree,
+		condition)
 	if err != nil {
 		return err
 	}
-
-	err = w32uiautomation.Invoke(button)
-	if err != nil {
-		return err
-	}
-	return nil
+	return w32uiautomation.Invoke(button)
 }
 
 func main() {
