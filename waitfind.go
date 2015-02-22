@@ -1,7 +1,6 @@
 package w32uiautomation
 
 import (
-	"fmt"
 	"syscall"
 	"unsafe"
 
@@ -18,9 +17,7 @@ func WaitFindFirst(auto *IUIAutomation, elem *IUIAutomationElement, scope TreeSc
 			return found, nil
 		}
 
-		fmt.Printf("Start waitChildAdded\n")
 		waitChildAdded(auto, elem)
-		fmt.Printf("received from waitChildAdded\n")
 	}
 }
 
@@ -31,7 +28,6 @@ func waitChildAdded(auto *IUIAutomation, elem *IUIAutomationElement) error {
 	lpVtbl.HandleStructureChangedEvent = syscall.NewCallback(func(this *IUIAutomationStructureChangedEventHandler, sender *IUIAutomationElement, changeType StructureChangeType, runtimeId *ole.SAFEARRAY) syscall.Handle {
 		switch changeType {
 		case StructureChangeType_ChildAdded, StructureChangeType_ChildrenBulkAdded:
-			fmt.Printf("Got event with changeType=%v\n", changeType)
 			waiting = false
 		}
 		return ole.S_OK
@@ -40,7 +36,6 @@ func waitChildAdded(auto *IUIAutomation, elem *IUIAutomationElement) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("AddStructureChangedEventHandler done\n")
 	var m ole.Msg
 	for waiting {
 		ole.GetMessage(&m, 0, 0, 0)
@@ -50,6 +45,5 @@ func waitChildAdded(auto *IUIAutomation, elem *IUIAutomationElement) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("RemoveStructureChangedEventHandler done\n")
 	return nil
 }
