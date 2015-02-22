@@ -142,6 +142,12 @@ func addLanguage() error {
 	}
 	fmt.Println(`Invoked "Japanese" listItem`)
 
+	err = auto.RemoveStructureChangedEventHandler(languageWin, (*wa.IUIAutomationStructureChangedEventHandler)(unsafe.Pointer(&handler)))
+	if err != nil {
+		return err
+	}
+	fmt.Println("After RemoveStructureChangedEventHandler")
+
 	return nil
 }
 

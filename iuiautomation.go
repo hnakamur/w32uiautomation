@@ -114,6 +114,10 @@ func (auto *IUIAutomation) AddStructureChangedEventHandler(element *IUIAutomatio
 	return addStructureChangedEventHandler(auto, element, scope, cacheRequest, handler)
 }
 
+func (auto *IUIAutomation) RemoveStructureChangedEventHandler(element *IUIAutomationElement, handler *IUIAutomationStructureChangedEventHandler) error {
+	return removeStructureChangedEventHandler(auto, element, handler)
+}
+
 func (auto *IUIAutomation) RemoveAllEventHandlers() error {
 	return removeAllEventHandlers(auto)
 }
@@ -199,6 +203,19 @@ func addStructureChangedEventHandler(auto *IUIAutomation, element *IUIAutomation
 		uintptr(unsafe.Pointer(cacheRequest)),
 		uintptr(unsafe.Pointer(handler)),
 		0)
+	if hr != 0 {
+		return ole.NewError(hr)
+	}
+	return nil
+}
+
+func removeStructureChangedEventHandler(auto *IUIAutomation, element *IUIAutomationElement, handler *IUIAutomationStructureChangedEventHandler) error {
+	hr, _, _ := syscall.Syscall(
+		auto.VTable().RemoveStructureChangedEventHandler,
+		3,
+		uintptr(unsafe.Pointer(auto)),
+		uintptr(unsafe.Pointer(element)),
+		uintptr(unsafe.Pointer(handler)))
 	if hr != 0 {
 		return ole.NewError(hr)
 	}
