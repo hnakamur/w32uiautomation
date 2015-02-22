@@ -64,7 +64,7 @@ func Release(this *ole.IUnknown) int32 {
 }
 
 func HandleStructureChangedEvent(this *ole.IUnknown, sender *wa.IUIAutomationElement, changeType wa.StructureChangeType, runtimeId *ole.SAFEARRAY) syscall.Handle {
-	fmt.Printf("HandleStructureChangedEvent. this=%v, sender=%v, changeType=%v, runtimeId=%v\n", this, sender, changeType, runtimeId)
+	fmt.Printf("HandleStructureChangedEvent. this=%v, sender=%v, changeType=%s, runtimeId=%v\n", this, sender, changeType.ToString(), runtimeId)
 	return 0
 }
 

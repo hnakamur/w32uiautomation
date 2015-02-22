@@ -1,6 +1,7 @@
 package w32uiautomation
 
 import (
+	"fmt"
 	"syscall"
 	"unsafe"
 
@@ -17,6 +18,25 @@ const (
 	StructureChangeType_ChildrenBulkRemoved
 	StructureChangeType_ChildrenReordered
 )
+
+func (t StructureChangeType) ToString() string {
+	switch t {
+	case StructureChangeType_ChildAdded:
+		return "StructureChangeType_ChildAdded"
+	case StructureChangeType_ChildRemoved:
+		return "StructureChangeType_ChildRemoved"
+	case StructureChangeType_ChildrenInvalidated:
+		return "StructureChangeType_ChildrenInvalidated"
+	case StructureChangeType_ChildrenBulkAdded:
+		return "StructureChangeType_ChildrenBulkAdded"
+	case StructureChangeType_ChildrenBulkRemoved:
+		return "StructureChangeType_ChildrenBulkRemoved"
+	case StructureChangeType_ChildrenReordered:
+		return "StructureChangeType_ChildrenReordered"
+	default:
+		panic(fmt.Errorf("Unknown StructureChangeType: %d", t))
+	}
+}
 
 type IUIAutomationStructureChangedEventHandler struct {
 	ole.IUnknown
