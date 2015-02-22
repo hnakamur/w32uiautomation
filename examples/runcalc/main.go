@@ -39,7 +39,7 @@ func runCalc() error {
 	if err != nil {
 		return err
 	}
-	calc, err := w32uiautomation.WaitFindFirst(root, w32uiautomation.TreeScope_Children, condition)
+	calc, err := w32uiautomation.WaitFindFirst2(auto, root, w32uiautomation.TreeScope_Children, condition)
 	if err != nil {
 		return err
 	}
