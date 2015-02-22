@@ -40,7 +40,7 @@ func (t StructureChangeType) ToString() string {
 
 type IUIAutomationStructureChangedEventHandler struct {
 	ole.IUnknown
-	Ref int32
+	ref int32
 }
 
 type IUIAutomationStructureChangedEventHandlerVtbl struct {
@@ -72,14 +72,14 @@ func structureChangedEventHandler_queryInterface(this *ole.IUnknown, iid *ole.GU
 
 func structureChangedEventHandler_addRef(this *ole.IUnknown) int32 {
 	pthis := (*IUIAutomationStructureChangedEventHandler)(unsafe.Pointer(this))
-	pthis.Ref++
-	return pthis.Ref
+	pthis.ref++
+	return pthis.ref
 }
 
 func structureChangedEventHandler_release(this *ole.IUnknown) int32 {
 	pthis := (*IUIAutomationStructureChangedEventHandler)(unsafe.Pointer(this))
-	pthis.Ref--
-	return pthis.Ref
+	pthis.ref--
+	return pthis.ref
 }
 
 func NewStructureChangedEventHandler(handlerFunc func(this *IUIAutomationStructureChangedEventHandler, sender *IUIAutomationElement, changeType StructureChangeType, runtimeId *ole.SAFEARRAY) syscall.Handle) IUIAutomationStructureChangedEventHandler {
