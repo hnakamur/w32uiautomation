@@ -50,7 +50,7 @@ func addLanguage() error {
 	if err != nil {
 		return err
 	}
-	languageWin, err := wa.WaitFindFirst(root, wa.TreeScope_Children, condition)
+	languageWin, err := wa.WaitFindFirst(auto, root, wa.TreeScope_Children, condition)
 	fmt.Printf("languageWin=%v, err=%v\n", languageWin, err)
 	if err != nil {
 		return err
@@ -108,7 +108,7 @@ func findChildElementByName(auto *wa.IUIAutomation, start *wa.IUIAutomationEleme
 	if err != nil {
 		return nil, err
 	}
-	return wa.WaitFindFirst(start, wa.TreeScope_Children, condition)
+	return wa.WaitFindFirst(auto, start, wa.TreeScope_Children, condition)
 }
 
 func findElementByName(auto *wa.IUIAutomation, start *wa.IUIAutomationElement, elementName string) (*wa.IUIAutomationElement, error) {
@@ -117,7 +117,7 @@ func findElementByName(auto *wa.IUIAutomation, start *wa.IUIAutomationElement, e
 	if err != nil {
 		return nil, err
 	}
-	return wa.WaitFindFirst(start, wa.TreeScope_Subtree, condition)
+	return wa.WaitFindFirst(auto, start, wa.TreeScope_Subtree, condition)
 }
 
 func main() {
