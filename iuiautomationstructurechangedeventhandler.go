@@ -40,6 +40,7 @@ func (t StructureChangeType) ToString() string {
 
 type IUIAutomationStructureChangedEventHandler struct {
 	ole.IUnknown
+	ref int32
 }
 
 type IUIAutomationStructureChangedEventHandlerVtbl struct {
@@ -53,22 +54,44 @@ func (h *IUIAutomationStructureChangedEventHandler) VTable() *IUIAutomationStruc
 	return (*IUIAutomationStructureChangedEventHandlerVtbl)(unsafe.Pointer(h.RawVTable))
 }
 
-func (h *IUIAutomationStructureChangedEventHandler) HandleStructureChangedEvent(sender *IUIAutomationElement, changeType StructureChangeType, runtimeId *ole.SAFEARRAY) error {
-	return handleStructureChangedEvent(h, sender, changeType, runtimeId)
+func structureChangedEventHandler_queryInterface(this *ole.IUnknown, iid *ole.GUID, punk **ole.IUnknown) uint32 {
+	*punk = nil
+	if ole.IsEqualGUID(iid, ole.IID_IUnknown) ||
+		ole.IsEqualGUID(iid, ole.IID_IDispatch) {
+		structureChangedEventHandler_addRef(this)
+		*punk = this
+		return ole.S_OK
+	}
+	if ole.IsEqualGUID(iid, IID_IUIAutomationStructureChangedEventHandler) {
+		structureChangedEventHandler_addRef(this)
+		*punk = this
+		return ole.S_OK
+	}
+	return ole.E_NOINTERFACE
 }
 
-func handleStructureChangedEvent(h *IUIAutomationStructureChangedEventHandler, sender *IUIAutomationElement, changeType StructureChangeType, runtimeId *ole.SAFEARRAY) error {
-	hr, _, _ := syscall.Syscall6(
-		h.VTable().HandleStructureChangedEvent,
-		4,
-		uintptr(unsafe.Pointer(h)),
-		uintptr(unsafe.Pointer(sender)),
-		uintptr(changeType),
-		uintptr(unsafe.Pointer(runtimeId)),
-		0,
-		0)
-	if hr != 0 {
-		return ole.NewError(hr)
+func structureChangedEventHandler_addRef(this *ole.IUnknown) int32 {
+	pthis := (*IUIAutomationStructureChangedEventHandler)(unsafe.Pointer(this))
+	pthis.ref++
+	return pthis.ref
+}
+
+func structureChangedEventHandler_release(this *ole.IUnknown) int32 {
+	pthis := (*IUIAutomationStructureChangedEventHandler)(unsafe.Pointer(this))
+	pthis.ref--
+	return pthis.ref
+}
+
+func NewStructureChangedEventHandler(handler func(this *IUIAutomationStructureChangedEventHandler, sender *IUIAutomationElement, changeType StructureChangeType, runtimeId *ole.SAFEARRAY) syscall.Handle) IUIAutomationStructureChangedEventHandler {
+	lpVtbl := &IUIAutomationStructureChangedEventHandlerVtbl{
+		IUnknownVtbl: ole.IUnknownVtbl{
+			QueryInterface: syscall.NewCallback(structureChangedEventHandler_queryInterface),
+			AddRef:         syscall.NewCallback(structureChangedEventHandler_addRef),
+			Release:        syscall.NewCallback(structureChangedEventHandler_release),
+		},
+		HandleStructureChangedEvent: syscall.NewCallback(handler),
 	}
-	return nil
+	return IUIAutomationStructureChangedEventHandler{
+		IUnknown: ole.IUnknown{RawVTable: (*interface{})(unsafe.Pointer(lpVtbl))},
+	}
 }

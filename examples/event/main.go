@@ -20,50 +20,7 @@ const (
 	equalButtonAutomationId = "121"
 )
 
-type myStructureChangedEventHandler struct {
-	lpVtbl *myStructureChangedEventHandlerVtbl
-	ref    int32
-}
-
-type myStructureChangedEventHandlerVtbl struct {
-	pQueryInterface              uintptr
-	pAddRef                      uintptr
-	pRelease                     uintptr
-	pHandleStructureChangedEvent uintptr
-}
-
-func QueryInterface(this *ole.IUnknown, iid *ole.GUID, punk **ole.IUnknown) uint32 {
-	//fmt.Printf("QueryInterface start. this=%v, iid=%v, punk=%v\n", this, iid, punk)
-	*punk = nil
-	if ole.IsEqualGUID(iid, ole.IID_IUnknown) ||
-		ole.IsEqualGUID(iid, ole.IID_IDispatch) {
-		AddRef(this)
-		*punk = this
-		return ole.S_OK
-	}
-	if ole.IsEqualGUID(iid, wa.IID_IUIAutomationStructureChangedEventHandler) {
-		AddRef(this)
-		*punk = this
-		return ole.S_OK
-	}
-	return ole.E_NOINTERFACE
-}
-
-func AddRef(this *ole.IUnknown) int32 {
-	//fmt.Printf("AddRef start. this=%v\n", this)
-	pthis := (*myStructureChangedEventHandler)(unsafe.Pointer(this))
-	pthis.ref++
-	return pthis.ref
-}
-
-func Release(this *ole.IUnknown) int32 {
-	//fmt.Printf("Release start. this=%v\n", this)
-	pthis := (*myStructureChangedEventHandler)(unsafe.Pointer(this))
-	pthis.ref--
-	return pthis.ref
-}
-
-func HandleStructureChangedEvent(this *ole.IUnknown, sender *wa.IUIAutomationElement, changeType wa.StructureChangeType, runtimeId *ole.SAFEARRAY) syscall.Handle {
+func HandleStructureChangedEvent(this *wa.IUIAutomationStructureChangedEventHandler, sender *wa.IUIAutomationElement, changeType wa.StructureChangeType, runtimeId *ole.SAFEARRAY) syscall.Handle {
 	fmt.Printf("HandleStructureChangedEvent. this=%v, sender=%v, changeType=%s, runtimeId=%v\n", this, sender, changeType.ToString(), runtimeId)
 	return 0
 }
@@ -99,13 +56,7 @@ func addLanguage() error {
 		return err
 	}
 
-	lpVtbl := &myStructureChangedEventHandlerVtbl{
-		pQueryInterface:              syscall.NewCallback(QueryInterface),
-		pAddRef:                      syscall.NewCallback(AddRef),
-		pRelease:                     syscall.NewCallback(Release),
-		pHandleStructureChangedEvent: syscall.NewCallback(HandleStructureChangedEvent),
-	}
-	handler := myStructureChangedEventHandler{lpVtbl: lpVtbl}
+	handler := wa.NewStructureChangedEventHandler(HandleStructureChangedEvent)
 
 	fmt.Println("Before AddStructureChangedEventHandler")
 	err = auto.AddStructureChangedEventHandler(languageWin, wa.TreeScope_Subtree, nil, (*wa.IUIAutomationStructureChangedEventHandler)(unsafe.Pointer(&handler)))
