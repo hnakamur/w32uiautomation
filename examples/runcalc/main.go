@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os/exec"
 
-	"github.com/hnakamur/w32uiautomation"
+	wa "github.com/hnakamur/w32uiautomation"
 	"github.com/mattn/go-ole"
 )
 
@@ -23,7 +23,7 @@ func runCalc() error {
 		return err
 	}
 
-	auto, err := w32uiautomation.NewUIAutomation()
+	auto, err := wa.NewUIAutomation()
 	if err != nil {
 		return err
 	}
@@ -34,12 +34,12 @@ func runCalc() error {
 	}
 	defer root.Release()
 
-	condVal := w32uiautomation.NewVariantString(calculatorName)
-	condition, err := auto.CreatePropertyCondition(w32uiautomation.UIA_NamePropertyId, condVal)
+	condVal := wa.NewVariantString(calculatorName)
+	condition, err := auto.CreatePropertyCondition(wa.UIA_NamePropertyId, condVal)
 	if err != nil {
 		return err
 	}
-	calc, err := w32uiautomation.WaitFindFirst(root, w32uiautomation.TreeScope_Children, condition)
+	calc, err := wa.WaitFindFirst(auto, root, wa.TreeScope_Children, condition)
 	if err != nil {
 		return err
 	}
@@ -78,21 +78,19 @@ func runCalc() error {
 	return nil
 }
 
-func pushButton(auto *w32uiautomation.IUIAutomation, calc *w32uiautomation.IUIAutomationElement, automationId string) error {
+func pushButton(auto *wa.IUIAutomation, calc *wa.IUIAutomationElement, automationId string) error {
 	condition, err := auto.CreatePropertyCondition(
-		w32uiautomation.UIA_AutomationIdPropertyId,
-		w32uiautomation.NewVariantString(automationId))
+		wa.UIA_AutomationIdPropertyId,
+		wa.NewVariantString(automationId))
 	if err != nil {
 		return err
 	}
 
-	button, err := w32uiautomation.WaitFindFirst(calc,
-		w32uiautomation.TreeScope_Subtree,
-		condition)
+	button, err := wa.WaitFindFirst(auto, calc, wa.TreeScope_Subtree, condition)
 	if err != nil {
 		return err
 	}
-	return w32uiautomation.Invoke(button)
+	return wa.Invoke(button)
 }
 
 func main() {
