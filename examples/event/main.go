@@ -7,7 +7,7 @@ import (
 	"time"
 	"unsafe"
 
-	"github.com/hnakamur/w32uiautomation"
+	wa "github.com/hnakamur/w32uiautomation"
 	"github.com/mattn/go-ole"
 )
 
@@ -20,67 +20,62 @@ const (
 	equalButtonAutomationId = "121"
 )
 
-type MyHandler struct {
-	w32uiautomation.IUIAutomationStructureChangedEventHandler
-	refCount int32
+type myStructureChangedEventHandler struct {
+	lpVtbl *myStructureChangedEventHandlerVtbl
+	ref    int32
 }
 
-func (h *MyHandler) QueryInterface(riid unsafe.Pointer, ppInterface **MyHandler) syscall.Handle {
-	return myHandler_QueryInterface(h, riid, ppInterface)
+type myStructureChangedEventHandlerVtbl struct {
+	pQueryInterface              uintptr
+	pAddRef                      uintptr
+	pRelease                     uintptr
+	pHandleStructureChangedEvent uintptr
 }
 
-func (h *MyHandler) AddRef() int32 {
-	return myHandler_AddRef(h)
+func QueryInterface(this *ole.IUnknown, iid *ole.GUID, punk **ole.IUnknown) uint32 {
+	//fmt.Printf("QueryInterface start. this=%v, iid=%v, punk=%v\n", this, iid, punk)
+	*punk = nil
+	if ole.IsEqualGUID(iid, ole.IID_IUnknown) ||
+		ole.IsEqualGUID(iid, ole.IID_IDispatch) {
+		AddRef(this)
+		*punk = this
+		return ole.S_OK
+	}
+	if ole.IsEqualGUID(iid, wa.IID_IUIAutomationStructureChangedEventHandler) {
+		AddRef(this)
+		*punk = this
+		return ole.S_OK
+	}
+	return ole.E_NOINTERFACE
 }
 
-func (h *MyHandler) Release() int32 {
-	return myHandler_Release(h)
+func AddRef(this *ole.IUnknown) int32 {
+	//fmt.Printf("AddRef start. this=%v\n", this)
+	pthis := (*myStructureChangedEventHandler)(unsafe.Pointer(this))
+	pthis.ref++
+	return pthis.ref
 }
 
-func (h *MyHandler) HandleStructureChangedEvent(sender *w32uiautomation.IUIAutomationElement, changeType w32uiautomation.StructureChangeType, runtimeId *ole.SAFEARRAY) syscall.Handle {
-	fmt.Printf("HandleStructureChangedEvent. h=%v, sender=%v, changeType=%v, runtimeId=%v\n", h, sender, changeType, runtimeId)
+func Release(this *ole.IUnknown) int32 {
+	//fmt.Printf("Release start. this=%v\n", this)
+	pthis := (*myStructureChangedEventHandler)(unsafe.Pointer(this))
+	pthis.ref--
+	return pthis.ref
+}
+
+func HandleStructureChangedEvent(this *ole.IUnknown, sender *wa.IUIAutomationElement, changeType wa.StructureChangeType, runtimeId *ole.SAFEARRAY) syscall.Handle {
+	fmt.Printf("HandleStructureChangedEvent. this=%v, sender=%v, changeType=%v, runtimeId=%v\n", this, sender, changeType, runtimeId)
 	return 0
 }
 
-func myHandler_QueryInterface(h *MyHandler, riid unsafe.Pointer, ppInterface **MyHandler) syscall.Handle {
-	fmt.Println("myHandler_QueryInterface")
-	h.AddRef()
-	*ppInterface = h
-	return 0
-}
-
-func myHandler_AddRef(h *MyHandler) int32 {
-	fmt.Println("myHandler_AddRef")
-	h.refCount += 1
-	return h.refCount
-}
-
-func myHandler_Release(h *MyHandler) int32 {
-	fmt.Println("myHandler_Release")
-	h.refCount -= 1
-	return h.refCount
-}
-
-func myHandler_HandleStructureChangedEvent(h *MyHandler, sender *w32uiautomation.IUIAutomationElement, changeType w32uiautomation.StructureChangeType, runtimeId *ole.SAFEARRAY) syscall.Handle {
-	fmt.Printf("HandleStructureChangedEvent. h=%v, sender=%v, changeType=%v, runtimeId=%v\n", h, sender, changeType, runtimeId)
-	return 0
-}
-
-var (
-	myHandler_QueryInterfaceFunc              = myHandler_QueryInterface
-	myHandler_AddRefFunc                      = myHandler_AddRef
-	myHandler_ReleaseFunc                     = myHandler_Release
-	myHandler_HandleStructureChangedEventFunc = myHandler_HandleStructureChangedEvent
-)
-
-func runCalc() error {
+func addLanguage() error {
 	err := exec.Command("control.exe", "/name", "Microsoft.Language").Start()
 	if err != nil {
 		return err
 	}
 	time.Sleep(time.Second)
 
-	auto, err := w32uiautomation.NewUIAutomation()
+	auto, err := wa.NewUIAutomation()
 	if err != nil {
 		return err
 	}
@@ -91,43 +86,88 @@ func runCalc() error {
 	}
 	defer root.Release()
 
-	condVal := w32uiautomation.NewVariantString("Language")
+	condVal := wa.NewVariantString("Language")
 	fmt.Printf("condVal=%v, %s\n", condVal, condVal.ToString())
-	condition, err := auto.CreatePropertyCondition(w32uiautomation.UIA_NamePropertyId, condVal)
+	condition, err := auto.CreatePropertyCondition(wa.UIA_NamePropertyId, condVal)
 	fmt.Printf("condition=%v, err=%v\n", condition, err)
 	if err != nil {
 		return err
 	}
-	calcWin, err := w32uiautomation.WaitFindFirst(root, w32uiautomation.TreeScope_Children, condition)
-	fmt.Printf("calcWin=%v, err=%v\n", calcWin, err)
+	languageWin, err := wa.WaitFindFirst(root, wa.TreeScope_Children, condition)
+	fmt.Printf("languageWin=%v, err=%v\n", languageWin, err)
 	if err != nil {
 		return err
 	}
 
-	handler := new(MyHandler)
-	vtable := w32uiautomation.IUIAutomationStructureChangedEventHandlerVtbl{
-		ole.IUnknownVtbl{
-			QueryInterface: uintptr(unsafe.Pointer(&myHandler_QueryInterfaceFunc)),
-			AddRef:         uintptr(unsafe.Pointer(&myHandler_AddRefFunc)),
-			Release:        uintptr(unsafe.Pointer(&myHandler_ReleaseFunc)),
-		},
-		uintptr(unsafe.Pointer(&myHandler_HandleStructureChangedEventFunc)),
+	lpVtbl := &myStructureChangedEventHandlerVtbl{
+		pQueryInterface:              syscall.NewCallback(QueryInterface),
+		pAddRef:                      syscall.NewCallback(AddRef),
+		pRelease:                     syscall.NewCallback(Release),
+		pHandleStructureChangedEvent: syscall.NewCallback(HandleStructureChangedEvent),
 	}
-	handler.RawVTable = (*interface{})(unsafe.Pointer(&vtable))
+	handler := myStructureChangedEventHandler{lpVtbl: lpVtbl}
+
 	fmt.Println("Before AddStructureChangedEventHandler")
-	err = auto.AddStructureChangedEventHandler(calcWin, w32uiautomation.TreeScope_Subtree, nil, (*w32uiautomation.IUIAutomationStructureChangedEventHandler)(unsafe.Pointer(handler)))
+	err = auto.AddStructureChangedEventHandler(languageWin, wa.TreeScope_Subtree, nil, (*wa.IUIAutomationStructureChangedEventHandler)(unsafe.Pointer(&handler)))
 	if err != nil {
 		return err
 	}
 	fmt.Println("After AddStructureChangedEventHandler")
+
+	addALanguageLink, err := findElementByName(auto, languageWin, "Add a language")
+	if err != nil {
+		return err
+	}
+	fmt.Println(`Found "Add a language" link`)
+	err = wa.Invoke(addALanguageLink)
+	if err != nil {
+		return err
+	}
+	fmt.Println(`Invoked "Add a language" link`)
+
+	addLanguagesWin, err := findChildElementByName(auto, root, "Add languages")
+	if err != nil {
+		return err
+	}
+	fmt.Println(`Found "Add languages" window`)
+
+	japaneseListItem, err := findElementByName(auto, addLanguagesWin, "Japanese")
+	if err != nil {
+		return err
+	}
+	fmt.Println(`Found "Japanese" listItem`)
+	err = wa.Invoke(japaneseListItem)
+	if err != nil {
+		return err
+	}
+	fmt.Println(`Invoked "Japanese" listItem`)
+
 	return nil
+}
+
+func findChildElementByName(auto *wa.IUIAutomation, start *wa.IUIAutomationElement, elementName string) (*wa.IUIAutomationElement, error) {
+	condVal := wa.NewVariantString(elementName)
+	condition, err := auto.CreatePropertyCondition(wa.UIA_NamePropertyId, condVal)
+	if err != nil {
+		return nil, err
+	}
+	return wa.WaitFindFirst(start, wa.TreeScope_Children, condition)
+}
+
+func findElementByName(auto *wa.IUIAutomation, start *wa.IUIAutomationElement, elementName string) (*wa.IUIAutomationElement, error) {
+	condVal := wa.NewVariantString(elementName)
+	condition, err := auto.CreatePropertyCondition(wa.UIA_NamePropertyId, condVal)
+	if err != nil {
+		return nil, err
+	}
+	return wa.WaitFindFirst(start, wa.TreeScope_Subtree, condition)
 }
 
 func main() {
 	ole.CoInitialize(0)
 	defer ole.CoUninitialize()
 
-	err := runCalc()
+	err := addLanguage()
 	if err != nil {
 		panic(err)
 	}
