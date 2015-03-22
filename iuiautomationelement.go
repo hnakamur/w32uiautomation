@@ -110,6 +110,10 @@ func (elem *IUIAutomationElement) VTable() *IUIAutomationElementVtbl {
 	return (*IUIAutomationElementVtbl)(unsafe.Pointer(elem.RawVTable))
 }
 
+func (elem *IUIAutomationElement) SetFocus() (err error) {
+	return setFocus(elem)
+}
+
 func (elem *IUIAutomationElement) FindFirst(scope TreeScope, condition *IUIAutomationCondition) (found *IUIAutomationElement, err error) {
 	return findFirst(elem, scope, condition)
 }
@@ -136,6 +140,20 @@ func (elem *IUIAutomationElement) Get_CurrentNativeWindowHandle() (syscall.Handl
 
 func (elem *IUIAutomationElement) Get_CurrentBoundingRectangle() (RECT, error) {
 	return get_CurrentBoundingRectangle(elem)
+}
+
+func setFocus(elem *IUIAutomationElement) (err error) {
+	hr, _, _ := syscall.Syscall(
+		elem.VTable().SetFocus,
+		1,
+		uintptr(unsafe.Pointer(elem)),
+		0,
+		0)
+	if hr != 0 {
+		err = ole.NewError(hr)
+		return
+	}
+	return
 }
 
 func findFirst(elem *IUIAutomationElement, scope TreeScope, condition *IUIAutomationCondition) (found *IUIAutomationElement, err error) {
