@@ -15,8 +15,9 @@ import "github.com/mattn/go-ole"
 func VariantToUintptrArray(v ole.VARIANT) []uintptr {
 	// Size of uintptr on 64bit system is 8
 	return []uintptr{
-		uintptr(v.VT<<48 | v.wReserved1<<32 | v.wReserved2<<16 | wReserved3),
-		uintptr(v.Val),
+		// FIXME:
+		uintptr(0), //uintptr(v.VT<<48 | v.wReserved1<<32 | v.wReserved2<<16 | wReserved3),
+		uintptr(0), //uintptr(v.Val),
 		uintptr(0),
 	}
 }
