@@ -4,7 +4,7 @@ import (
 	"syscall"
 	"unsafe"
 
-	"github.com/mattn/go-ole"
+	"github.com/go-ole/go-ole"
 )
 
 type IUIAutomationTreeWalker struct {

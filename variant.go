@@ -3,7 +3,7 @@ package w32uiautomation
 import (
 	"unsafe"
 
-	"github.com/mattn/go-ole"
+	"github.com/go-ole/go-ole"
 )
 
 func NewVariantString(s string) ole.VARIANT {
