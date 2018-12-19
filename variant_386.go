@@ -1,7 +1,7 @@
 // +build 386
 package w32uiautomation
 
-import "github.com/mattn/go-ole"
+import "github.com/go-ole/go-ole"
 
 // type VARIANT struct {
 // 	VT         uint16 //  2

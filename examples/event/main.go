@@ -8,7 +8,7 @@ import (
 	"unsafe"
 
 	wa "github.com/hnakamur/w32uiautomation"
-	"github.com/mattn/go-ole"
+	"github.com/go-ole/go-ole"
 )
 
 const (

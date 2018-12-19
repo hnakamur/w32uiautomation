@@ -5,7 +5,7 @@ import (
 	"syscall"
 	"unsafe"
 
-	"github.com/mattn/go-ole"
+	"github.com/go-ole/go-ole"
 )
 
 func createPropertyCondition(aut *IUIAutomation, propertyId PROPERTYID, value ole.VARIANT) (newCondition *IUIAutomationCondition, err error) {
