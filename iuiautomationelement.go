@@ -142,6 +142,10 @@ func (elem *IUIAutomationElement) Get_CurrentBoundingRectangle() (RECT, error) {
 	return get_CurrentBoundingRectangle(elem)
 }
 
+func (elem *IUIAutomationElement) Get_CurrentPropertyValue(propertyId PROPERTYID) (ole.VARIANT, error) {
+	return get_CurrentPropertyValue(elem, propertyId)
+}
+
 func setFocus(elem *IUIAutomationElement) (err error) {
 	hr, _, _ := syscall.Syscall(
 		elem.VTable().SetFocus,
@@ -260,4 +264,24 @@ func get_CurrentBoundingRectangle(elem *IUIAutomationElement) (rect RECT, err er
 		return
 	}
 	return
+}
+
+func get_CurrentPropertyValue(elem *IUIAutomationElement, propertyid PROPERTYID) (ole.VARIANT, error) {
+	var v ole.VARIANT
+
+	ole.VariantInit(&v)
+
+	hr, _, _ := syscall.Syscall(
+		elem.VTable().GetCurrentPropertyValue,
+		3,
+		uintptr(unsafe.Pointer(elem)),
+		uintptr(propertyid),
+		uintptr(unsafe.Pointer(&v)))
+
+	if hr != 0 {
+		err := ole.NewError(hr)
+		return v, err
+	}
+
+	return v, nil
 }
