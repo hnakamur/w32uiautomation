@@ -10,16 +10,13 @@ import (
 
 func createPropertyCondition(aut *IUIAutomation, propertyId PROPERTYID, value ole.VARIANT) (*IUIAutomationCondition, error) {
 	var newCondition *IUIAutomationCondition
-	v := VariantToUintptrArray(value)
 	hr, _, _ := syscall.Syscall6(
 		aut.VTable().CreatePropertyCondition,
-		6,
+		4,
 		uintptr(unsafe.Pointer(aut)),
 		uintptr(propertyId),
-		v[0],
-		v[1],
-		v[2],
-		uintptr(unsafe.Pointer(&newCondition)))
+		uintptr(unsafe.Pointer(&value)),
+		uintptr(unsafe.Pointer(&newCondition)), 0, 0)
 	if hr != 0 {
 		return nil, ole.NewError(hr)
 	}
