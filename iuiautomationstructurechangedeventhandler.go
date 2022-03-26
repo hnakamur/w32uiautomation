@@ -54,7 +54,7 @@ func (h *IUIAutomationStructureChangedEventHandler) VTable() *IUIAutomationStruc
 	return (*IUIAutomationStructureChangedEventHandlerVtbl)(unsafe.Pointer(h.RawVTable))
 }
 
-func structureChangedEventHandler_queryInterface(this *ole.IUnknown, iid *ole.GUID, punk **ole.IUnknown) uint32 {
+func structureChangedEventHandler_queryInterface(this *ole.IUnknown, iid *ole.GUID, punk **ole.IUnknown) uintptr {
 	*punk = nil
 	if ole.IsEqualGUID(iid, ole.IID_IUnknown) ||
 		ole.IsEqualGUID(iid, ole.IID_IDispatch) {
